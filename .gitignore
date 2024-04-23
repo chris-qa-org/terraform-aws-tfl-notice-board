@@ -8,3 +8,9 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# Angular
+node_modules/
+.angular/
+.sass-cache/
+coverage/
