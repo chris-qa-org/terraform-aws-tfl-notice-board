@@ -9,12 +9,32 @@ env:
   MODULE_DEPLOYMENT_DIR: "module-deployment"
 
 jobs:
+  set-env:
+    name: Set environment
+    runs-on: ubuntu-22.04
+    outputs:
+      branch: ${{ steps.var.outputs.branch }}
+    steps:
+      - id: var
+        run: |
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+
   terraform-validate:
     name: Terraform Validate
     runs-on: ubuntu-latest
+    needs: set-env
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
 
       - name: Get terraform version
         id: get-terraform-version
@@ -26,6 +46,15 @@ jobs:
         uses: hashicorp/setup-terraform@v3.0.0
         with:
           terraform_version: ${{ steps.get-terraform-version.outputs.version }}
+
+      - name: Download tfvars and backend
+        run: |
+          aws s3 cp s3://${{ secrets.TFVARS_S3_BUCKET_NAME }}/${{ secrets.TFVARS_FILENAME }} ${{ env.MODULE_DEPLOYMENT_DIR }}/.
+          aws s3 cp s3://${{ secrets.TFVARS_S3_BUCKET_NAME }}/${{ secrets.TF_BACKEND_FILENAME }} ${{ env.MODULE_DEPLOYMENT_DIR }}/.
+
+      - name: Replace module version with branch name
+        run: |
+          sed -i "s/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board.*/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board?ref=${{ needs.set-env.outputs.branch }}\"/g" ${{ env.MODULE_DEPLOYMENT_DIR }}/tfl-notice-board.tf
 
       - name: Run a Terraform init
         run: |
@@ -41,6 +70,11 @@ jobs:
         run: |
           terraform -chdir=${{ env.MODULE_DEPLOYMENT_DIR }} \
           fmt -check=true -diff=true
+
+      - name: Run a Terraform plan
+        run: |
+          terraform -chdir=${{ env.MODULE_DEPLOYMENT_DIR }} \
+          plan
 
   terraform-docs-validation:
     name: Terraform Docs validation
