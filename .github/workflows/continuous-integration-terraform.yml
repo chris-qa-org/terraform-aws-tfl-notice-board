@@ -22,36 +22,22 @@ jobs:
           DOTFILE_VERSION=$(cat .terraform-version)
           echo "version=$DOTFILE_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Pull Terraform image
-        run: |
-          docker pull hashicorp/terraform:${{ steps.get-terraform-version.outputs.version }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.0.0
+        with:
+          terraform_version: ${{ steps.get-terraform-version.outputs.version }}
 
       - name: Run a Terraform init
         run: |
-          docker run \
-            --rm \
-            -v $(pwd):/terraform \
-            -w /terraform \
-            hashicorp/terraform:${{ steps.get-terraform-version.outputs.version }} \
-            init
+          terraform init
 
       - name: Run a Terraform validate
         run: |
-          docker run \
-            --rm \
-            -v $(pwd):/terraform \
-            -w /terraform \
-            hashicorp/terraform:${{ steps.get-terraform-version.outputs.version }} \
-            validate
+          terraform validate
 
       - name: Run a Terraform format check
         run: |
-          docker run \
-            --rm \
-            -v $(pwd):/terraform \
-            -w /terraform \
-            hashicorp/terraform:${{ steps.get-terraform-version.outputs.version }} \
-            fmt -check=true -diff=true
+          terraform fmt -check=true -diff=true
 
   terraform-docs-validation:
     name: Terraform Docs validation
