@@ -1,6 +1,8 @@
 name: Continuous integration Module Deplyment
 
 on:
+  release:
+    types: [published]
   push:
     branches: main
   pull_request:
@@ -53,6 +55,7 @@ jobs:
           aws s3 cp s3://${{ secrets.TFVARS_S3_BUCKET_NAME }}/${{ secrets.TF_BACKEND_FILENAME }} ${{ env.MODULE_DEPLOYMENT_DIR }}/.
 
       - name: Replace module version with branch name
+        if: ${{ github.event_name != 'release' }}
         run: |
           sed -i "s/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board.*/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board?ref=${{ needs.set-env.outputs.branch }}\"/g" ${{ env.MODULE_DEPLOYMENT_DIR }}/tfl-notice-board.tf
 
@@ -75,6 +78,12 @@ jobs:
         run: |
           terraform -chdir=${{ env.MODULE_DEPLOYMENT_DIR }} \
           plan
+
+      - name: Run a Terraform apply on Release
+        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+        run: |
+          terraform -chdir=${{ env.MODULE_DEPLOYMENT_DIR }} \
+          apply
 
   terraform-docs-validation:
     name: Terraform Docs validation
