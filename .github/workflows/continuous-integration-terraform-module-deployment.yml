@@ -59,6 +59,11 @@ jobs:
         run: |
           sed -i "s/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board.*/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board?ref=${{ needs.set-env.outputs.branch }}\"/g" ${{ env.MODULE_DEPLOYMENT_DIR }}/tfl-notice-board.tf
 
+      - name: Replace module version with Revision tag
+        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+        run: |
+          sed -i "s/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board.*/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board?ref=${{ github.ref_name }}\"/g" ${{ env.MODULE_DEPLOYMENT_DIR }}/tfl-notice-board.tf
+
       - name: Run a Terraform init
         run: |
           terraform -chdir=${{ env.MODULE_DEPLOYMENT_DIR }} \
