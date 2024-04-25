@@ -11,20 +11,22 @@ env:
   MODULE_DEPLOYMENT_DIR: "module-deployment"
 
 jobs:
-  set-env:
-    name: Set environment
+  set-outputs:
+    name: Set Output Vars
     runs-on: ubuntu-22.04
     outputs:
       branch: ${{ steps.var.outputs.branch }}
     steps:
       - id: var
         run: |
-          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          BRANCH="$(echo "$BRANCH" | sed 's;/;\\/;g')"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
 
   terraform-validate:
     name: Terraform Validate
     runs-on: ubuntu-latest
-    needs: set-env
+    needs: set-outputs
     permissions:
       id-token: write
       contents: read
@@ -57,7 +59,7 @@ jobs:
       - name: Replace module version with branch name
         if: ${{ github.event_name != 'release' }}
         run: |
-          sed -i "s/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board.*/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board?ref=${{ needs.set-env.outputs.branch }}\"/g" ${{ env.MODULE_DEPLOYMENT_DIR }}/tfl-notice-board.tf
+          sed -i "s/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board.*/  source = \"github.com\/chris-qa-org\/terraform-aws-tfl-notice-board?ref=${{ needs.set-outputs.outputs.branch }}\"/g" ${{ env.MODULE_DEPLOYMENT_DIR }}/tfl-notice-board.tf
 
       - name: Replace module version with Revision tag
         if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
