@@ -20,7 +20,7 @@ jobs:
       - id: var
         run: |
           BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
-          BRANCH="$(echo "$BRANCH" | sed 's;/;\\/;g')"
+          BRANCH="$(echo "$BRANCH" | sed 's;/;%2F;g')"
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
 
   terraform-validate:
