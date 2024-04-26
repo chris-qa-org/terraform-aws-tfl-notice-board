@@ -1,4 +1,4 @@
-name: Continuous integration
+name: Continuous integration Tflint
 on:
   pull_request:
 jobs:

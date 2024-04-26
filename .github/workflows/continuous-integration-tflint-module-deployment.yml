@@ -1,4 +1,4 @@
-name: Continuous integration Module Deployment
+name: Continuous integration Tflint Module Deployment
 
 on:
   pull_request:
