@@ -19,7 +19,7 @@ No providers.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_aws_tfvars_s3"></a> [aws\_tfvars\_s3](#module\_aws\_tfvars\_s3) | github.com/dxw/terraform-aws-tfvars-s3 | v0.2.5 |
-| <a name="module_tfl_notice_board"></a> [tfl\_notice\_board](#module\_tfl\_notice\_board) | github.com/chris-qa-org/terraform-aws-tfl-notice-board | v0.1.0 |
+| <a name="module_tfl_notice_board"></a> [tfl\_notice\_board](#module\_tfl\_notice\_board) | github.com/chris-qa-org/terraform-aws-tfl-notice-board | v0.2.0 |
 
 ## Resources
 
