@@ -1,4 +1,4 @@
-name: Continuous integration Terraform Module Deplyment
+name: CI - Terraform Module Deplyment
 
 on:
   release:

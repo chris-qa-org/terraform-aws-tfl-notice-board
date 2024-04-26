@@ -1,6 +1,11 @@
-name: Continuous integration Tfsec
+name: CI - Tfsec Module Deployment
+
 on:
   pull_request:
+
+env:
+  MODULE_DEPLOYMENT_DIR: "module-deployment"
+
 jobs:
   tfsec-pr-commenter:
     name: tfsec PR commenter
@@ -8,8 +13,9 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@v4
+
       - name: tfsec
         uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
         with:
           github_token: ${{ github.token }}
-          working_directory: ''
+          working_directory: ${{ env.MODULE_DEPLOYMENT_DIR }}

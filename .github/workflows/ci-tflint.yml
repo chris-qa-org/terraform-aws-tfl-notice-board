@@ -1,11 +1,6 @@
-name: Continuous integration Tflint Module Deployment
-
+name: CI - Tflint
 on:
   pull_request:
-
-env:
-  MODULE_DEPLOYMENT_DIR: "module-deployment"
-
 jobs:
   tflint:
     name: tflint
@@ -13,11 +8,9 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@v4
-
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: v0.44.1
-
       - name: Run TFLint
-        run: tflint --chdir=${{ env.MODULE_DEPLOYMENT_DIR }} -f compact
+        run: tflint -f compact
