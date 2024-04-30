@@ -1,5 +1,5 @@
 module "aws_tfvars_s3" {
-  source = "github.com/dxw/terraform-aws-tfvars-s3?ref=v0.2.5"
+  source = "github.com/dxw/terraform-aws-tfvars-s3?ref=v0.2.6"
 
   project_name             = "chris-qa-tfl-notice-board"
   enable_s3_bucket_logging = true
